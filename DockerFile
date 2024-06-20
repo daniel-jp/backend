@@ -1,0 +1,20 @@
+# Etapa de construção
+FROM maven:3.8.5-openjdk-17 AS build
+
+# Copiar todos os arquivos do projeto para o contêiner
+COPY . .
+
+# Executar o build do Maven, pulando os testes
+RUN mvn clean package -DskipTests
+
+# Etapa de runtime
+FROM openjdk:17.0.1-jdk-slim
+
+# Copiar o JAR construído da etapa de build
+COPY --from=build /target/backend-0.0.1-SNAPSHOT.jar backend.jar
+
+# Expor a porta da aplicação
+EXPOSE 8080
+
+# Definir o ponto de entrada do contêiner
+ENTRYPOINT ["java", "-jar", "backend.jar"]
